@@ -31,7 +31,7 @@ The goals / steps of this project are the following:
 
 The code for this step is contained in the first code cell of the IPython notebook located in "https://github.com/buddha216g/CarND-AdvancedLaneFinding/blob/master/AdvancedLanes.ipynb" (under sections 'Read and print images' and 'camera caliberation').  
 
-I start by preparing "object points", which will be the (9, 6, 0) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (9, 6) plane at z=0, such that the object points are the same for each calibration image.  
+I started by preparing "object points", which will be the (9, 6, 0) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (9, 6) plane at z=0, such that the object points are the same for each calibration image.  
 However, i found that 3 of the 20 images are not populating. By taking a range for y (5,6) and x (6,7,8,9), i was able to get all images.
 
 Found chessboard corners and drew chessboard corners, by using cv2.findChessboardCorners() and cv2.drawChessboardCorners() functions.
@@ -40,16 +40,15 @@ All 20 images are listed in the "Read and Print the images - display corners" se
 
 Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.
 
-I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  I applied this distortion correction to the test image using the `cv2.undistort()` function and obtained this result: 
+I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function. 
 
-![alt text][image1]
 
 ### Pipeline (single images)
 
 #### 1. "Undistort camera image example" provides an exmaple undistorted image
 
 I further applied cal_undistort() function on a test image. See the undistorted test image under 'Undistort Test Image' section of my notebook:
-![alt text][image2]
+
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
@@ -60,7 +59,7 @@ Various thresholds were used for different gradients and channels.
 
 The undistorted images and the respective binary transforms are shown in the respective sections of my notebook.
 
-![alt text][image3]
+
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
@@ -94,14 +93,14 @@ I verified that my perspective transform was working as expected by drawing the 
 I added it to the pipeline()
 You can see it in the "Run Pipeline on All Test Images" section.
 
-![alt text][image4]
+
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
 I computed a histogram of the bottom half of the image and found the bottom-most x position (or "base") of the left and right lane lines. These locations were identified from the local maxima of the left and right quarters of the histogram, just left and right of the midpoint. This helped to reject lines from adjacent lanes. I increased windows to 20, from which to identify lane pixels, each one centered on the midpoint of the pixels from the window below. This effectively "follows" the lane lines up to the top of the binary image, and speeds processing by only searching for activated pixels over a small portion of the image. Pixels belonging to each lane line are identified and the Numpy polyfit() method fits a second order polynomial to each set of pixels. The polyfit_using_prev_fit() leverages a previous fit and only searches for lane pixels within a certain range of that fit. 
 Sections "sliding window poly fit' to 'Polyfit using previous frame' show both the output images and code for identifying lane-line pixels and fit their positions with a polynomial
 
-![alt text][image5]
+
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
@@ -120,8 +119,6 @@ r_fit_x_int and l_fit_x_int are the x-intercepts of the right and left fits, res
 
 "Draw the Detected Lane Back onto the Original Image" and "Draw Curvature Radius and Distance from Center Data onto the Original Image" sections of the notebook show the two images
 
-
-![alt text][image6]
 
 ---
 
