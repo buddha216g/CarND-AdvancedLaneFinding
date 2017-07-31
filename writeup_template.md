@@ -1,10 +1,4 @@
-## Writeup Template
-
-### You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
-
----
-
-**Advanced Lane Finding Project**
+## Advanced Lane Finding Project
 
 The goals / steps of this project are the following:
 
@@ -33,15 +27,7 @@ The goals / steps of this project are the following:
 
 ---
 
-### Writeup / README
-
-#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  [Here](https://github.com/udacity/CarND-Advanced-Lane-Lines/blob/master/writeup_template.md) is a template writeup for this project you can use as a guide and a starting point.  
-
-You're reading it!
-
 ### Camera Calibration
-
-#### 1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
 
 The code for this step is contained in the first code cell of the IPython notebook located in "https://github.com/buddha216g/CarND-AdvancedLaneFinding/blob/master/AdvancedLanes.ipynb" (under sections 'Read and print images' and 'camera caliberation').  
 
@@ -67,53 +53,73 @@ I further applied cal_undistort() function on a test image. See the undistorted 
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `another_file.py`).  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
+I experimented with sobel abs, sobel mag, sobel direction gradient methods.
+I also experimented with HLS, RBG and LAB color spaces.
+
+Various thresholds were used for different gradients and channels.
+
+The undistorted images and the respective binary transforms are shown in the respective sections of my notebook.
 
 ![alt text][image3]
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-The code for my perspective transform includes a function called `warper()`, which appears in lines 1 through 8 in the file `example.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
+The code for my perspective transform includes a function called `warp()`, which appears in 'Perspective Transform - warp function 'of the IPython notebook).  The `warp()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
 
 ```python
-src = np.float32(
-    [[(img_size[0] / 2) - 55, img_size[1] / 2 + 100],
-    [((img_size[0] / 6) - 10), img_size[1]],
-    [(img_size[0] * 5 / 6) + 60, img_size[1]],
-    [(img_size[0] / 2 + 55), img_size[1] / 2 + 100]])
-dst = np.float32(
-    [[(img_size[0] / 4), 0],
-    [(img_size[0] / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), 0]])
+w,h are width and height of the image
+
+src = np.float32([(575,464),
+                  (750,464), 
+                  (265,682), 
+                  (1100,682)])
+
+dst = np.float32([(450,0),
+                  (w-450,0),
+                  (450,h),
+                  (w-450,h)])
+
 ```
 
 This resulted in the following source and destination points:
 
 | Source        | Destination   | 
 |:-------------:|:-------------:| 
-| 585, 460      | 320, 0        | 
-| 203, 720      | 320, 720      |
-| 1127, 720     | 960, 720      |
-| 695, 460      | 960, 0        |
+| 575, 464      | 450, 0        | 
+| 750, 464      | 830, 0      |
+| 265, 682     | 450, 720      |
+| 1100, 682      |830, 720        |
 
-I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
+I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a all test images.
+I added it to the pipeline()
+You can see it in the "Run Pipeline on All Test Images" section.
 
 ![alt text][image4]
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+I computed a histogram of the bottom half of the image and found the bottom-most x position (or "base") of the left and right lane lines. These locations were identified from the local maxima of the left and right quarters of the histogram, just left and right of the midpoint. This helped to reject lines from adjacent lanes. I increased windows to 20, from which to identify lane pixels, each one centered on the midpoint of the pixels from the window below. This effectively "follows" the lane lines up to the top of the binary image, and speeds processing by only searching for activated pixels over a small portion of the image. Pixels belonging to each lane line are identified and the Numpy polyfit() method fits a second order polynomial to each set of pixels. The polyfit_using_prev_fit() leverages a previous fit and only searches for lane pixels within a certain range of that fit. 
+Sections "sliding window poly fit' to 'Polyfit using previous frame' show both the output images and code for identifying lane-line pixels and fit their positions with a polynomial
 
 ![alt text][image5]
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this in lines # through # in my code in `my_other_file.py`
+calc_curv_rad_and_center_dist() section of the notebook has this code.
+
+curve_radius = ((1 + (2*fit[0]*y_0*y_meters_per_pixel + fit[1])**2)**1.5) / np.absolute(2*fit[0])
+In this example, fit[0] is the first coefficient (the y-squared coefficient) of the second order polynomial fit, and fit[1] is the second (y) coefficient. y_0 is the y position within the image upon which the curvature calculation is based (the bottom-most y - the position of the car in the image - was chosen). y_meters_per_pixel is the factor used for converting from pixels to meters. This conversion was also used to generate a new fit with coefficients in terms of meters.
+
+The position of the vehicle with respect to the center of the lane is calculated with the following lines of code:
+
+lane_center_position = (r_fit_x_int + l_fit_x_int) /2
+center_dist = (car_position - lane_center_position) * x_meters_per_pix
+r_fit_x_int and l_fit_x_int are the x-intercepts of the right and left fits, respectively.
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+"Draw the Detected Lane Back onto the Original Image" and "Draw Curvature Radius and Distance from Center Data onto the Original Image" sections of the notebook show the two images
+
 
 ![alt text][image6]
 
@@ -124,6 +130,8 @@ I implemented this step in lines # through # in my code in `yet_another_file.py`
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
 Here's a [link to my video result](./project_video.mp4)
+https://github.com/buddha216g/CarND-AdvancedLaneFinding/blob/master/project_video_output.mp4
+
 
 ---
 
@@ -131,4 +139,5 @@ Here's a [link to my video result](./project_video.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+As i was learing the concepts from the class videos, i started writing the code in jupyter notebook and experimented with various features. Like thresholds, gradients, channels, combinations. May be i have to revisit this notebook and make it much more robust in terms of structure and content (esp lane finding and probably use a combination of gradient and color instead of just one), since i was not able to complet the challenge and harder challenge videos.
+
