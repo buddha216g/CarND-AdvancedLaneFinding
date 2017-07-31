@@ -29,7 +29,7 @@ The goals / steps of this project are the following:
 
 ### Camera Calibration
 
-The code for this step is contained in the first code cell of the IPython notebook located in "https://github.com/buddha216g/CarND-AdvancedLaneFinding/blob/master/AdvancedLanes.ipynb" (under sections 'Read and print images' and 'camera caliberation').  
+The code for this step is contained in the accompanying 'advancedLanes.ipynb' notebook located in (under sections 'Read and print images' and 'camera caliberation').  
 
 I started by preparing "object points", which will be the (9, 6, 0) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (9, 6) plane at z=0, such that the object points are the same for each calibration image.  
 However, i found that 3 of the 20 images are not populating. By taking a range for y (5,6) and x (6,7,8,9), i was able to get all images.
