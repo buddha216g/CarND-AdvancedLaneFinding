@@ -136,5 +136,5 @@ https://github.com/buddha216g/CarND-AdvancedLaneFinding/blob/master/project_vide
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-As i was learing the concepts from the class videos, i started writing the code in jupyter notebook and experimented with various features. Like thresholds, gradients, channels, combinations. May be i have to revisit this notebook and make it much more robust in terms of structure and content (esp lane finding and probably use a combination of gradient and color instead of just one), since i was not able to complet the challenge and harder challenge videos.
+As i was learing the concepts from the class videos, i started writing the code in jupyter notebook and experimented with various features. Like thresholds, gradients, channels, combinations. May be i have to revisit this notebook and make it much more robust in terms of structure and content (esp lane finding and probably use a combination of gradient and color instead of just one), since i was not able to complete the challenge and harder challenge videos.
 
